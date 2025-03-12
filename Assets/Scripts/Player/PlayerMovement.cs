@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -17,6 +18,11 @@ public class PlayerMovement : MonoBehaviour
 	public float LastOnWallTime { get; private set; }
 	public float LastOnWallRightTime { get; private set; }
 	public float LastOnWallLeftTime { get; private set; }
+
+	public bool IsRunning { get; private set; }
+
+	public Animator animator;
+
 
 	//Jump
 	private bool _isJumpCut;
@@ -66,6 +72,12 @@ public class PlayerMovement : MonoBehaviour
 		_moveInput.x = Input.GetAxisRaw("Horizontal");
 		_moveInput.y = Input.GetAxisRaw("Vertical");
 
+		// Actualiza la variable IsRunning según el input horizontal.
+		IsRunning = math.abs(RB.velocity.x) >= 0.3f;
+
+		// Conecta la variable IsRunning con el parámetro del Animator.
+		animator.SetBool("isRunning", IsRunning);
+
 		if (_moveInput.x != 0)
 			CheckDirectionToFace(_moveInput.x > 0);
 
@@ -87,18 +99,16 @@ public class PlayerMovement : MonoBehaviour
 				LastOnGroundTime = Data.coyoteTime;
 			}
 
-			
+
 			//Right Wall Check
 			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _wallLayer) && IsFacingRight)
 					|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _wallLayer) && !IsFacingRight)) && !IsWallJumping)
 				LastOnWallRightTime = Data.coyoteTime;
-				Debug.Log("Rigth Wall Check");
 
 			//Left Wall Check
 			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _wallLayer) && !IsFacingRight)
 				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _wallLayer) && IsFacingRight)) && !IsWallJumping)
 				LastOnWallLeftTime = Data.coyoteTime;
-				Debug.Log("Left Wall Check");
 
 			LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
 		}
